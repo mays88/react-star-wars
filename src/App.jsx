@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import { getAllStarShips } from "./services/sw-api";
+import StarShipCard from "./components/StarShipCard/StarShipCard";
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await getAllStarShips();
+                console.log(result);
+                setData(result.results);
+                setLoading(false);
+            } catch (error) {
+                console.error(error);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!data) {
+        return <div>No data available</div>;
+    }
+    // console.log(data);
+    return (
+        <>
+            <h1>STAR WARS STARSHIPS</h1>
+            <div className="container">
+                {data.map((starship) => {
+                    return (
+                        <StarShipCard key={Math.random() * 100 + 1}>
+                            {starship.name}
+                        </StarShipCard>
+                    );
+                })}
+            </div>
+        </>
+    );
 }
 
-export default App
+export default App;
